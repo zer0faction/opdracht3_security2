@@ -1,0 +1,19 @@
+{
+  "name": "opdracht3_security2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zer0faction/opdracht3_security2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zer0faction/opdracht3_security2/issues"
+  },
+  "homepage": "https://github.com/zer0faction/opdracht3_security2#readme"
+}
