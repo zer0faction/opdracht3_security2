@@ -1,0 +1,44 @@
+<html>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<head>
+    <title>
+        Opdracht 3 Security 2
+    </title>
+    <body>
+
+        <h1>
+            Login
+        </h1>
+        <br>
+
+        <h1>
+            Place message
+        </h1>
+        <br>
+
+        <button onclick="getMessages()">get all messages</button>
+        <p id="demo"></p>
+
+        <script>
+          demoP = document.getElementById("demo");
+
+          function getMessages() {
+            console.log('getmessages')
+            axios.get('http://localhost:4000/api/getallmessages').then(function (res) {
+              console.log('haha');
+              console.log(res.data.Messages);
+              messages = res.data.Messages;
+              messages.forEach(function (e) {
+                console.log('getmessages');
+                demoP.innerHTML = demoP.innerHTML + e + "<br>"
+              })
+            })
+          }
+        </script>
+
+        <br>
+
+    </body>
+
+</he1ad>
+</html>
