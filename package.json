@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/zer0faction/opdracht3_security2/issues"
   },
-  "homepage": "https://github.com/zer0faction/opdracht3_security2#readme"
+  "homepage": "https://github.com/zer0faction/opdracht3_security2#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }
