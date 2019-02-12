@@ -11,9 +11,8 @@
         </h1>
         <br>
 
-        <h1>
-            Place message
-        </h1>
+        <button onclick="addMessage()">add message</button>
+        <input id="input">
         <br>
 
         <button onclick="getMessages()">get all messages</button>
@@ -26,12 +25,19 @@
             console.log('getmessages')
             axios.get('http://localhost:4000/api/getallmessages').then(function (res) {
               console.log('haha');
-              console.log(res.data.Messages);
-              messages = res.data.Messages;
+              console.log(res.data);
+              messages = res.data.messages;
               messages.forEach(function (e) {
                 console.log('getmessages');
-                demoP.innerHTML = demoP.innerHTML + e + "<br>"
+                demoP.innerHTML = demoP.innerHTML + e.message + "<br>"
               })
+            })
+          }
+
+          function addMessage () {
+            let message = document.getElementById("input").value;
+            axios.post('http://localhost:4000/api/getallmessages', message).then(function (res) {
+              console.log(res);
             })
           }
         </script>
@@ -40,5 +46,5 @@
 
     </body>
 
-</he1ad>
+</head>
 </html>

@@ -1,8 +1,7 @@
 {
   "host": "127.0.0.1",
   "user": "3306",
-  "password": "geheim123",
-  "database": "1087",
+  "database": "test",
   "multipleStatements": true
 }
 

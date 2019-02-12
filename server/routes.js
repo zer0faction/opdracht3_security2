@@ -6,32 +6,37 @@ var bcrypt      = require('bcrypt');
 var salt        = bcrypt.genSaltSync(10);
 var mysql       = require('mysql');
 var db_config   = require('./config.json');
+var bodyParser = require('body-parser');
 var connection;
 
-// function handleDisconnect() {
-//   console.log('Connecting to db..');
-//   connection = mysql.createConnection(db_config);
-//
-//   connection.connect(function(err) {
-//     if (err) {
-//       console.log('2. error when connecting to db:', err);
-//       setTimeout(handleDisconnect, 1000);
-//     } else {
-//       console.log('Connected to db on host:', db_config.host);
-//     }
-//   });
-//
-//   connection.on('error', function(err) {
-//     console.log('3. db error', err);
-//     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-//       handleDisconnect();
-//     } else {
-//       throw err;
-//     }
-//   });
-// }
-//
-// handleDisconnect();
+router.use(bodyParser.urlencoded({'extended': 'true'}));
+router.use(bodyParser.json());
+router.use(bodyParser.json({type: 'application/vnd.api+json'}));
+
+function handleDisconnect() {
+  console.log('Connecting to db..');
+  connection = mysql.createConnection(db_config);
+
+  connection.connect(function(err) {
+    if (err) {
+      console.log('2. error when connecting to db:', err);
+      setTimeout(handleDisconnect, 1000);
+    } else {
+      console.log('Connected to db on host:', db_config.host);
+    }
+  });
+
+  connection.on('error', function(err) {
+    console.log('3. db error', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      handleDisconnect();
+    } else {
+      throw err;
+    }
+  });
+}
+
+handleDisconnect();
 
 router.post('/login', function (req,res,next) {
   connection.query('SELECT * FROM user WHERE username =?', [req.body.email], function (error,results,fields) {
@@ -58,25 +63,17 @@ router.post('/login', function (req,res,next) {
 })
 
 router.get('/getallmessages', function (req,res,next) {
-  // connection.query('SELECT * FROM messages', function (error,results,fields) {
-  //   if(error){
-  //     throw error;
-  //   } else {
-  //     let response = {response: 'response'}
-  //     res.sendStatus(200).json();
-  //   }
-  // })
-
-  let response = ({
-    "Messages" : [
-      "hahah",
-      "1",
-      "bazinga"
-    ]
+  connection.query('SELECT * FROM messages', function (error,results,fields) {
+    if(error){
+      throw error;
+    } else {
+      let result = {
+        "messages": results,
+      }
+      res.status(200).json(result);
+      next();
+    }
   })
-  res.status(200).json(response);
-  next();
-
 })
 
 module.exports = router;
