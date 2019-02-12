@@ -62,7 +62,7 @@ router.post('/login', function (req,res,next) {
   })
 })
 
-router.get('/getallmessages', function (req,res,next) {
+router.get('/getallmessages/', function (req,res,next) {
   connection.query('SELECT * FROM messages', function (error,results,fields) {
     if(error){
       throw error;
@@ -74,6 +74,12 @@ router.get('/getallmessages', function (req,res,next) {
       next();
     }
   })
+})
+
+router.post('/addmessage/:message', function (req,res,next) {
+  let message = req.params.message;
+  // values
+  connection.query('INSERT INTO messages (message) VALUES (?)', message);
 })
 
 module.exports = router;

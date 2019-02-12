@@ -36,7 +36,7 @@
 
           function addMessage () {
             let message = document.getElementById("input").value;
-            axios.post('http://localhost:4000/api/getallmessages', message).then(function (res) {
+            axios.post('http://localhost:4000/api/addmessage/'+message).then(function (res) {
               console.log(res);
             })
           }
