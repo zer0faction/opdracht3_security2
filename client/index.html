@@ -7,8 +7,30 @@
     <body>
 
         <h1>
-            Login
+            REGISTER
         </h1>
+        <h1>
+            username
+        </h1>
+        <input id="usernameregister">
+        <h1>
+            password
+        </h1>
+        <input id="passwordregister">
+
+        <h1>
+            LOGIN
+        </h1>
+        <h1>
+            username
+        </h1>
+        <input id="username">
+        <h1>
+            password
+        </h1>
+        <input id="password">
+        <br>
+        <br>
         <br>
 
         <button onclick="addMessage()">add message</button>
@@ -37,6 +59,22 @@
           function addMessage () {
             let message = document.getElementById("input").value;
             axios.post('http://localhost:4000/api/addmessage/'+message).then(function (res) {
+              console.log(res);
+            })
+          }
+
+          function login () {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            axios.post('http://localhost:4000/api/login/'+username+'/'+password).then(function (res) {
+              console.log(res);
+            })
+          }
+
+          function register() {
+            let username = document.getElementById("usernameregister").value;
+            let password = document.getElementById("passwordregister").value;
+            axios.post('http://localhost:4000/api/register/'+username+'/'+password).then(function (res) {
               console.log(res);
             })
           }

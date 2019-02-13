@@ -7,6 +7,8 @@ var salt        = bcrypt.genSaltSync(10);
 var mysql       = require('mysql');
 var db_config   = require('./config.json');
 var bodyParser = require('body-parser');
+var bcrypt = require('bcryptjs');
+var salt = bcrypt.getSaltSync(10);
 var connection;
 
 router.use(bodyParser.urlencoded({'extended': 'true'}));
@@ -80,6 +82,31 @@ router.post('/addmessage/:message', function (req,res,next) {
   let message = req.params.message;
   // values
   connection.query('INSERT INTO messages (message) VALUES (?)', message);
+})
+
+router.post('/register/:username/:password', function (req,res,next) {
+  let login = {
+    'username': req.params.username,
+    'password': bcrypt.hash(req.params.password, salt),
+  }
+  // values
+  connection.query('INSERT INTO users (user) VALUES (?)', login);
+})
+
+router.post('/login/:username/:password', function (req,res,next) {
+  let username = req.params.username;
+  let password = req.params.password;
+  connection.query('SELECT * FROM users WHERE username =?', username, function (error,rows) {
+    if(error){
+      throw error;
+    }  else {
+      if(rows.length > 0){
+        if(rows[0].password == bcrypt.hash(password, salt)){
+          res.status(200).json("gelukt, je bent ingelogd")
+        }
+      }
+    }
+  })
 })
 
 module.exports = router;
