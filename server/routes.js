@@ -2,18 +2,36 @@ var express     = require('express');
 var router      = express.Router();
 var expressJWT  = require('express-jwt');
 var jwt         = require('jsonwebtoken');
-var bcrypt      = require('bcrypt');
+var bcrypt      = require('bcryptjs');
 var salt        = bcrypt.genSaltSync(10);
 var mysql       = require('mysql');
 var db_config   = require('./config.json');
 var bodyParser = require('body-parser');
-var bcrypt = require('bcryptjs');
-var salt = bcrypt.getSaltSync(10);
+var auth = require('./auth');
 var connection;
 
 router.use(bodyParser.urlencoded({'extended': 'true'}));
 router.use(bodyParser.json());
 router.use(bodyParser.json({type: 'application/vnd.api+json'}));
+
+// (\/addmessage/:message
+// (\/login/:username/:password,
+// (\/register/:username/:password
+
+// router.all( new RegExp("[^(\/register/:username/:password),^(\/login/),^(\/getallmessages/,(\/addmessage/]"), function (request, response, next) {
+//
+//   console.log('gecatchd');
+//   var token = (request.header('X-Access-Token')) || '';
+//
+//   auth.decodeToken(token, function (err, payload) {
+//     if (err) {
+//       console.log('Error handler: ' + err.message);
+//       response.sendStatus(401);
+//     } else {
+//       next();
+//     }
+//   });
+// });
 
 function handleDisconnect() {
   console.log('Connecting to db..');
@@ -40,31 +58,7 @@ function handleDisconnect() {
 
 handleDisconnect();
 
-router.post('/login', function (req,res,next) {
-  connection.query('SELECT * FROM user WHERE username =?', [req.body.email], function (error,results,fields) {
-    if(error){
-      throw error;
-    } else {
-      if(results.length > 0){
-        if(req.body.password, results[0].password) {
-
-          let response = ({
-            "Hello" : "Welcome to our API version 1!"
-          })
-          res.status(200).json(response);
-          next();
-
-        } else {
-          res.sendStatus(401);
-        }
-      } else {
-        res.sendStatus(401);
-      }
-    }
-  })
-})
-
-router.get('/getallmessages/', function (req,res,next) {
+router.get('/getallmessages', function (req,res,next) {
   connection.query('SELECT * FROM messages', function (error,results,fields) {
     if(error){
       throw error;
@@ -81,32 +75,78 @@ router.get('/getallmessages/', function (req,res,next) {
 router.post('/addmessage/:message', function (req,res,next) {
   let message = req.params.message;
   // values
-  connection.query('INSERT INTO messages (message) VALUES (?)', message);
+
+  console.log(req.header('X-Access-Token'));
+  var token = (req.header('X-Access-Token')) || '';
+
+  auth.decodeToken(token, function (err, payload) {
+    if (err) {
+      console.log('Error handler: ' + err.message);
+      res.sendStatus(401);
+    } else {
+      connection.query('INSERT INTO messages (message) VALUES (?)', message, function (err) {
+        if(err){
+          throw err
+        } else {
+          console.log('ja hoor, gelukt');
+          res.status(200).json('gelukt');
+          next();
+        }
+      });
+    }
+  });
 })
 
 router.post('/register/:username/:password', function (req,res,next) {
-  let login = {
-    'username': req.params.username,
-    'password': bcrypt.hash(req.params.password, salt),
-  }
-  // values
-  connection.query('INSERT INTO users (user) VALUES (?)', login);
+  let username = req.params.username;
+  let password = req.params.password;
+
+  var registerQuery = 'INSERT INTO users (username, password) VALUES ("';
+  var registerData = username + '","' + bcrypt.hashSync(password, salt) +'");';
+
+  console.log(registerQuery + registerData);
+
+  connection.query('SELECT * FROM users WHERE username = ?', [username], function (err, rows, fields) {
+    if(err) {
+      throw err
+    }
+
+    if(!rows.length) {
+      connection.query(registerQuery + registerData, function (error, results, fields) {
+
+        if (error) {
+          throw error;
+        } else {
+          res.sendStatus(200);
+          next();
+        }
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  });
 })
 
 router.post('/login/:username/:password', function (req,res,next) {
   let username = req.params.username;
   let password = req.params.password;
-  connection.query('SELECT * FROM users WHERE username =?', username, function (error,rows) {
-    if(error){
+
+  connection.query('SELECT * FROM users WHERE username =?', [username], function (error, rows) {
+    if (error) {
       throw error;
-    }  else {
+    } else {
       if(rows.length > 0){
-        if(rows[0].password == bcrypt.hash(password, salt)){
-          res.status(200).json("gelukt, je bent ingelogd")
+        if(bcrypt.compareSync(password, rows[0].password)) {
+          res.status(200).json(auth.encodeToken(rows[0].customer_id));
+          next();
+        } else {
+          res.sendStatus(401);
         }
+      } else {
+        res.sendStatus(401);
       }
     }
-  })
+  });
 })
 
 module.exports = router;
